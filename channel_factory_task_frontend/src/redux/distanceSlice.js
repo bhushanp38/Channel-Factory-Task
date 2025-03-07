@@ -19,7 +19,6 @@ const distanceSlice = createSlice({
     },
     fetchDistanceSuccess: (state, action) => {
       state.loading = false;
-      console.log("entered");
       const newSearch = action.payload;
       const exists = state.searches.find(
         (item) =>
@@ -35,6 +34,10 @@ const distanceSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    clearSearches: (state) => {
+      state.searches = [];
+      localStorage.removeItem("searches");
+    },
   },
 });
 
@@ -42,6 +45,7 @@ export const {
   fetchDistanceStart,
   fetchDistanceSuccess,
   fetchDistanceFailure,
+  clearSearches,
 } = distanceSlice.actions;
 
 // export const fetchDistance = (source, destination) => async (dispatch) => {

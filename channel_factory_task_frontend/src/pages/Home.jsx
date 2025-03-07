@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   baseUrl,
+  clearSearches,
   fetchDistanceFailure,
   fetchDistanceStart,
   fetchDistanceSuccess,
 } from "../redux/distanceSlice";
 import axios from "axios";
+import notify from "utitlities/Notifications/Notify";
 
 const Home = () => {
   const [source, setSource] = useState("");
@@ -26,6 +28,7 @@ const Home = () => {
         dispatch(fetchDistanceSuccess(response.data));
         setSource("");
         setDestination("");
+        notify("Distance calculated successfully", "success");
         console.log("Success:", response.data);
       } catch (error) {
         dispatch(
@@ -33,17 +36,25 @@ const Home = () => {
             error.response?.data?.error || "Something went wrong"
           )
         );
+        notify("Error while getting distance, try again later", "error");
         console.error(
           "Error fetching distance:",
           error.response ? error.response.data : error.message
         );
       }
+    } else {
+      notify("Please enter both source and destination", "warning");
     }
+  };
+
+  const handleClear = () => {
+    dispatch(clearSearches());
+    notify("History cleared successfully", "success");
   };
 
   return (
     <div className="container">
-      <h1 className="title">Channel Factory Task</h1>
+      <h1 className="title text-center">Channel Factory Task</h1>
       <br />
       <div className="input-container">
         <div className="card">
@@ -70,26 +81,39 @@ const Home = () => {
         </div>
       </div>
       <div>
-        <div>
+        <div className="history-title-div">
           <h2>Previous Searches</h2>
+          {searches?.length > 0 && (
+            <p className="underlined-text" onClick={handleClear}>
+              Clear History
+            </p>
+          )}
         </div>
         <div>
-          {searches.map((search, index) => (
-            <div key={index} className="list-card">
-              <p>
-                <strong>Source:- </strong>
-                {search.formatted_source}
-              </p>
-              <p>
-                <strong>Destination:- </strong>
-                {search.formatted_destination}
-              </p>
-              <p>
-                <strong>Distance:- </strong>
-                {search.distance_km}
+          {searches?.length > 0 ? (
+            searches.map((search, index) => (
+              <div key={index} className="list-card">
+                <p>
+                  <strong>Source:- </strong>
+                  {search.formatted_source}
+                </p>
+                <p>
+                  <strong>Destination:- </strong>
+                  {search.formatted_destination}
+                </p>
+                <p>
+                  <strong>Distance:- </strong>
+                  {search.distance_km}
+                </p>
+              </div>
+            ))
+          ) : (
+            <div>
+              <p className="list-card text-center">
+                <strong>No Data Available</strong>
               </p>
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>
